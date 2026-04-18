@@ -1,40 +1,65 @@
 import streamlit as st
+import google.generativeai as genai
 
+# --- 1. PAGE CONFIGURATION ---
 st.set_page_config(page_title="Fi-Mind", page_icon="🧠", layout="wide")
 
-# --- SIDEBAR ---
-st.sidebar.success("Select a feature above.")
+# --- 2. AI SETUP (SECURITY) ---
+try:
+    # This pulls your API key safely from the "Secrets" vault
+    api_key = st.secrets["GOOGLE_API_KEY"]
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-1.5-flash')
+except Exception as e:
+    st.error("⚠️ API Key not found! Please check your Streamlit Cloud Secrets.")
+
+# --- 3. SIDEBAR (TEAM PROFILE) ---
 st.sidebar.title("Fi-vengers Team")
 st.sidebar.info("Jakarta International University | AD-CARE Project")
+st.sidebar.write("**Members:** Tesa, Paulin, Abigail, Winona, Dedifis")
 
-# --- MAIN PAGE LAYOUT ---
-# Create two columns: Left for text, Right for a welcome image/logo
+# --- 4. MAIN INTERFACE ---
 col1, col2 = st.columns([2, 1])
 
 with col1:
     st.title("🖋️ The Fi-Mind Anthology")
     st.subheader("Where Literature Meets Mental Wellness")
-    st.write("""
-        Welcome to the heart of the Fi-vengers project. 
-        As English Literature students, we know that words have power. 
-        Whether you are analyzing Shakespeare or studying for SLA, 
-        Fi-Mind is here to support your mind and soul.
-    """)
-    
+    st.write("Welcome, Fi-venger! Let's analyze literature and stay mindful together.")
+
 with col2:
-    # You can put a logo or an illustration here
-    st.image("https://via.placeholder.com/200", caption="Fi-Mind Logo")
+    # Team Logo or Illustration
+    st.image("https://cdn-icons-png.flaticon.com/512/3426/3426653.png", width=150)
 
 st.divider()
 
-# --- TABS FOR QUICK INFO ---
-tab1, tab2, tab3 = st.tabs(["Daily Verse", "Project Goals", "Contact Us"])
+# --- 5. THE AI FEATURE (STUDY BUDDY) ---
+st.subheader("💬 Fi-Mind AI Study Buddy")
+user_query = st.text_input("Ask me about SLA, Phonetics, or Literature:", placeholder="e.g., Explain Universal Grammar...")
+
+if st.button("Ask AI"):
+    if user_query:
+        with st.spinner("Fi-Mind is analyzing..."):
+            try:
+                # Custom Persona: Telling the AI how to behave
+                persona = "You are an empathetic English Literature mentor for Tesa and the Fi-vengers team. Answer kindly."
+                response = model.generate_content(f"{persona} Question: {user_query}")
+                
+                st.markdown("### Fi-Mind Says:")
+                st.write(response.text)
+            except Exception as e:
+                st.error(f"The AI is currently resting: {e}")
+    else:
+        st.warning("Please enter a question first!")
+
+# --- 6. INFORMATION TABS ---
+st.divider()
+tab1, tab2, tab3 = st.tabs(["🙏 Daily Verse", "🎯 Project Goals", "📞 Contact"])
 
 with tab1:
-    st.write("*'For I know the plans I have for you,' declares the Lord...*")
-    
+    st.info("'For I know the plans I have for you,' declares the Lord...")
+
 with tab2:
-    st.write("Our goal is to improve student well-being through AI-driven peer support.")
+    st.write("Supporting the well-being of JIU students through literature and AI.")
 
 with tab3:
-    st.write("Reach out to Tesa and the team at JIU!")
+    st.write("Contact the AD-CARE division for support.")
