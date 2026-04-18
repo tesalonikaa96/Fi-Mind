@@ -2,14 +2,20 @@ import streamlit as st
 import google.generativeai as genai
 
 st.set_page_config(page_title="Fi-Mind", page_icon="🧠", layout="wide")
-model = None
-if "GOOGLE_API_KEY" in st.secrets:
-    try:
-        api_key = st.secrets["GOOGLE_API_KEY"]
-        genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-1.5-flash')
-    except Exception as e:
-        st.error(f"Error initializing AI: {e}")
+# --- 2. AI SETUP (SECURITY) ---
+model = None  # We start with nothing
+
+try:
+    # 1. Try to get the key and configure
+    api_key = st.secrets["GOOGLE_API_KEY"]
+    genai.configure(api_key=api_key)
+    
+    # 2. Try to start the model (This must be INSIDE the try block or AFTER the except)
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    
+except Exception as e:
+    # 3. This tells Python what to do if things go wrong
+    st.error(f"⚠️ Connection Error: {e}")
 else:
     st.error("⚠️ API Key not found! Please check your .streamlit/secrets.toml file.")
 st.sidebar.title("Fi-vengers Team")
