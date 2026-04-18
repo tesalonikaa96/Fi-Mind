@@ -1,29 +1,20 @@
 import streamlit as st
 import google.generativeai as genai
 
-# --- 1. PAGE CONFIGURATION ---
 st.set_page_config(page_title="Fi-Mind", page_icon="🧠", layout="wide")
-
-# Initialize model as None so the app doesn't crash later
 model = None
-
-# --- 2. AI SETUP (SECURITY) ---
 if "GOOGLE_API_KEY" in st.secrets:
     try:
         api_key = st.secrets["GOOGLE_API_KEY"]
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-1.5-flash')
     except Exception as e:
         st.error(f"Error initializing AI: {e}")
 else:
     st.error("⚠️ API Key not found! Please check your .streamlit/secrets.toml file.")
-
-# --- 3. SIDEBAR (TEAM PROFILE) ---
 st.sidebar.title("Fi-vengers Team")
 st.sidebar.info("Jakarta International University | Fi-vengers Project")
 st.sidebar.write("**Members:** Tesa, Paulin, Abigail, Winona, Dedifis")
-
-# --- 4. MAIN INTERFACE ---
 col1, col2 = st.columns([2, 1])
 with col1:
     st.title("🖋️ The Fi-Mind Anthology")
