@@ -49,3 +49,26 @@ if st.button("Ask AI"):
                 st.error(f"The AI is currently resting: {e}")
     else:
         st.warning("Please enter a question first!")
+        import streamlit as st
+import google.generativeai as genai
+
+st.set_page_config(page_title="Fi-Mind", page_icon="🧠")
+
+# --- DEBUGGING SECRETS ---
+if "GOOGLE_API_KEY" not in st.secrets:
+    st.error("❌ The Website can't find your Key. Please check the Streamlit Cloud Dashboard Secrets!")
+    st.stop() # This stops the app here so we don't get more errors
+
+# --- AI SETUP ---
+api_key = st.secrets["GOOGLE_API_KEY"]
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+# --- UI ---
+st.title("🖋️ The Fi-Mind Anthology")
+st.sidebar.title("Fi-vengers Team")
+
+user_input = st.text_input("Ask your AI Mentor:")
+if st.button("Ask AI"):
+    response = model.generate_content(user_input)
+    st.write(response.text)
