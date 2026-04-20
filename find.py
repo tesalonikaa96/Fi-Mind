@@ -69,6 +69,6 @@ st.title("🖋️ The Fi-Mind Anthology")
 st.sidebar.title("Fi-vengers Team")
 
 user_input = st.text_input("Ask your AI Mentor:")
-if st.button("Ask AI"):
+if st.button("Ask AI", key="fi_vengers_ai_button"):
     response = model.generate_content(user_input)
     st.write(response.text)
