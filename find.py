@@ -103,4 +103,4 @@ if prompt := st.chat_input("Ketik pertanyaanmu di sini (Contoh: Apa inti dari ce
                 response = st.session_state.chat_session.send_message(prompt)
                 st.markdown(response.text)
             except Exception as e:
-                st.error(f"Koneksi AI terputus: {e}")www
+                st.error(f"Koneksi AI terputus: {e}")
