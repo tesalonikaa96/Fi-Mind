@@ -1,43 +1,62 @@
 import streamlit as st
-from google import genai
+import google.generativeai as genai
 
 # --- 1. CONFIG ---
 st.set_page_config(page_title="Fi-Mind", page_icon="🧠", layout="wide")
 
-# --- 2. SETUP CLIENT (MODERN VERSION) ---
+# --- 2. AI SETUP ---
 if "GOOGLE_API_KEY" not in st.secrets:
-    st.error("❌ API Key tidak ditemukan di Secrets!")
+    st.error("❌ API Key not found! Please check your Streamlit Cloud Secrets.")
     st.stop()
 
-# Inisialisasi Client Baru
-client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+try:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+    
+    # We will try these model names one by one until one works
+    possible_models = ['gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro']
+    model = None
 
-# --- 3. UI SIDEBAR & HEADER ---
-st.sidebar.title("Fi-vengers Team")
-st.sidebar.info("Jakarta International University | Fi-vengers Project")
+    for name in possible_models:
+        try:
+            test_model = genai.GenerativeModel(name)
+            # Try a tiny test to see if it responds
+            model = test_model
+            break # Success! Exit the loop
+        except:
+            continue
 
+    if not model:
+        st.error("All Gemini models are currently unavailable. Please try again in 5 minutes.")
+        st.stop()
+        
+except Exception as e:
+    st.error(f"⚠️ Connection Error: {e}")
+    st.stop()
+
+# --- 3. UI SIDEBAR ---
+st.sidebar.title("🛡️ Fi-vengers Team")
+st.sidebar.info("Jakarta International University | English Lit")
+st.sidebar.write("**Team:** Tesa, Paulin, Abigail, Winona, Dedifis")
+
+# --- 4. MAIN INTERFACE ---
 st.title("🖋️ The Fi-Mind Anthology")
-st.write("Welcome, Fi-venger! Let's analyze literature together.")
+st.write("Welcome, Fi-venger! Let's get that literature analysis done.")
 
 st.divider()
 
-# --- 4. AI FEATURE ---
-st.subheader("💬 Fi-Mind AI Study Buddy")
-user_query = st.text_input("Tanyakan sesuatu (SLA, Phonetics, Literature):")
+user_query = st.text_input("Ask your AI Mentor (SLA, Phonetics, or Literature):")
 
-if st.button("Ask AI", key="fi_vengers_ai_button"):
+if st.button("Ask AI", key="fi_vengers_main_btn"):
     if user_query:
-        with st.spinner("Fi-Mind sedang berpikir..."):
+        with st.spinner("Fi-Mind is analyzing..."):
             try:
-                # Cara panggil AI yang baru di tahun 2026
-                response = client.models.generate_content(
-                    model='gemini-1.5-flash', 
-                    contents=f"You are a supportive English Lit mentor. Question: {user_query}"
-                )
+                # Custom instruction for the AI
+                persona = "You are a supportive English Literature mentor for Tesa and the Fi-vengers team."
+                response = model.generate_content(f"{persona} Question: {user_query}")
                 
-                st.markdown("### Fi-Mind Says:")
+                st.markdown("### 🧠 Fi-Mind Says:")
                 st.write(response.text)
             except Exception as e:
-                st.error(f"Terjadi kendala teknis: {e}")
+                st.error(f"The AI is currently resting: {e}")
     else:
-        st.warning("Silakan masukkan pertanyaan dulu!")
+        st.warning("Please type a question first!")
